@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kvíz – Štátnice CH</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; }
+    .question { margin-bottom: 20px; }
+    .answers label { display: block; margin-bottom: 5px; }
+    #result { font-weight: bold; margin-top: 20px; }
+    .hidden { display: none; }
+    button { margin-top: 10px; }
+    #themeSelect { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Kvíz – Vyber tému</h1>
+  <select id="themeSelect">
+    <option value="analytika">Analytická chémia</option>
+  </select>
+  <button onclick="generateQuiz()">Spustiť kvíz</button>
+  <form id="quizForm" class="hidden"></form>
+  <div id="result" class="hidden"></div>
+  <script>
+    const databazaOtazok = {
+      analytika: [
+        { otazka: "Čugajevovo činidlo sa používa pre dôkaz:", odpovede: ["Cu²⁺", "Ni²⁺", "Fe²⁺", "Pd²⁺"], spravna: 1 },
+        { otazka: "K čemu nemůže sloužit hmotnostní spektrometrie:", odpovede: ["Odlišení stereoizomerů", "Kvantifikace analytu", "Určení hmotnosti analytu", "Určení struktury"], spravna: 0 },
+        { otazka: "Na aký indikátor sa titruje octovka:", odpovede: ["Metyloranž", "Tymolová modř", "Fenolftaleín", "Alizarín"], spravna: 2 },
+        { otazka: "Jednotka ppm znamená:", odpovede: ["mg/l", "µg/ml", "%", "g/l"], spravna: 0 },
+        { otazka: "Ako sa stanovuje H₂O₂?", odpovede: ["Manganometricky", "Jodometricky", "Bichromatometricky", "Gravimetricky"], spravna: 0 },
+        { otazka: "Čo popisuje Ilkovičova rovnica:", odpovede: ["Pulzný potenciál", "Koncentráciu podľa napätia", "Difúzny prúd podľa koncentrácie", "Odpor elektrody"], spravna: 2 },
+        { otazka: "Ako sa redukujú látky v analytike?", odpovede: ["Br₂, I₂", "I₂", "Hydrazín", "Br₂"], spravna: 2 },
+        { otazka: "Kapilárna elektroforéza rozdeľuje látky na základe:", odpovede: ["Ionizácie", "Rýchlosti", "Interakcie s fázou", "Pohyblivosti"], spravna: 3 },
+        { otazka: "Medián je robustným odhadom:", odpovede: ["Smerodajnej odchýlky", "Relatívnej odchýlky", "Priemeru", "Modu"], spravna: 2 },
+        { otazka: "Absorbancia je:", odpovede: ["-log(T)", "log(T)", "ln(T)", "1/T"], spravna: 0 },
+        { otazka: "Na čo sa používa dimetylglyoxím?", odpovede: ["Dôkaz Cu²⁺", "Chelátor Ni²⁺", "Oxidačné činidlo", "Indikátor Ag⁺"], spravna: 1 },
+        { otazka: "Validácia metódy zahŕňa:", odpovede: ["Prípravu vzorky", "Optimalizáciu", "Overenie správnosti", "Úpravu pH"], spravna: 2 },
+        { otazka: "Indikátor pri manganometrickej titrácii:", odpovede: ["Acidobázický", "Metalochromný", "Redoxný", "Žiadny"], spravna: 2 },
+        { otazka: "Citlivosť metódy je:", odpovede: ["Presnosť", "Pravdivosť", "Smernica závislosti signálu", "Derivácia koncentrácie"], spravna: 2 },
+        { otazka: "Transmisia pri A=1 je:", odpovede: ["10", "0.1", "10%", "1"], spravna: 2 },
+        { otazka: "Fosforescencia je:", odpovede: ["Prechod S→S₀", "Foton T→S₀", "Elektrón T→S₀", "Foton S→S₀"], spravna: 2 }
+      ]
+    };
+    function shuffleArray(array) {
+      return array.sort(() => 0.5 - Math.random());
+    }
+    function generateQuiz() {
+      const tema = document.getElementById("themeSelect").value;
+      const otazky = shuffleArray(databazaOtazok[tema]).slice(0, 8);
+      const form = document.getElementById("quizForm");
+      form.innerHTML = "";
+      otazky.forEach((q, index) => {
+        const qDiv = document.createElement("div");
+        qDiv.classList.add("question");
+        qDiv.innerHTML = `<p>${index + 1}. ${q.otazka}</p>`;
+        q.odpovede.forEach((ans, i) => {
+          qDiv.innerHTML += `<label><input type="radio" name="q${index}" value="${i}"> ${String.fromCharCode(97 + i)}) ${ans}</label>`;
+        });
+        form.appendChild(qDiv);
+      });
+      form.innerHTML += '<button type="button" onclick="checkAnswers()">Vyhodnotiť</button>';
+      form.classList.remove("hidden");
+      document.getElementById("result").classList.add("hidden");
+    }
+    function checkAnswers() {
+      const form = document.getElementById("quizForm");
+      const inputs = form.querySelectorAll("input[type=radio]:checked");
+      let score = 0;
+      inputs.forEach(input => {
+        const qIndex = parseInt(input.name.slice(1));
+        const correct = databazaOtazok["analytika"][qIndex].spravna;
+        if (parseInt(input.value) === correct) score++;
+      });
+      const result = document.getElementById("result");
+      result.textContent = `Správne odpovede: ${score} z 8 (${Math.round(score / 8 * 100)}%)`;
+      result.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
